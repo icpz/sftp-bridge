@@ -9,11 +9,9 @@ import (
 	"time"
 )
 
-const (
-	DefaultConfigFile = "./config.json"
-)
-
 var (
+	DefaultConfigFile = "./config.json"
+
 	TmpDir string
 )
 
