@@ -10,20 +10,21 @@ import (
 	"syscall"
 
 	"github.com/icpz/sftp-bridge/common"
+	"github.com/icpz/sftp-bridge/config"
 	"github.com/icpz/sftp-bridge/sshtun"
 )
 
 var (
-	shost = flag.String("shost", "", "ssh tunnel host")
-	lport = flag.Int("lport", 8123, "local bridge port")
+	cfgFile = flag.String("config", common.DefaultConfigFile, "path to config file")
+	cfg *config.Config = nil
 )
 
 func handle(conn net.Conn) {
 	defer conn.Close()
 
-	stconn, err := sshtun.Dial(*shost)
+	stconn, err := sshtun.Dial(cfg.SshHost)
 	if err != nil {
-		log.Printf("[main] failed to connect to %s: %v\n", *shost, err)
+		log.Printf("[main] failed to connect to %s: %v\n", cfg.SshHost, err)
 		return
 	}
 	defer stconn.Close()
@@ -38,7 +39,7 @@ func mainLoop(lis net.Listener) {
 			log.Printf("[main] failed to accept: %v\n", err)
 			break
 		}
-		log.Printf("[main] new conn from %s\n", conn.LocalAddr().String())
+		log.Printf("[main] new conn from %s\n", conn.RemoteAddr().String())
 
 		go handle(conn)
 	}
@@ -47,8 +48,14 @@ func mainLoop(lis net.Listener) {
 func init() {
 	flag.Parse()
 
-	if *shost == "" {
-		log.Fatalln("[main] please specify shost")
+	var err error
+	cfg, err = config.ReadConfig(*cfgFile)
+	if err != nil {
+		log.Fatalln("[main] failed to load config: %v\n", err)
+	}
+
+	if cfg.SshHost == "" {
+		log.Fatalln("[main] please specify ssh host")
 	}
 }
 
@@ -57,12 +64,13 @@ func main() {
 	log.Printf("[main] using TmpDir %s\n", common.TmpDir)
 	defer common.DeInit()
 
-	lis, err := net.Listen("tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(*lport)))
+	lis, err := net.Listen("tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(cfg.ListenPort)))
 	if err != nil {
-		log.Printf("[main] failed to listen on port %d: %v\n", *lport, err)
+		log.Printf("[main] failed to listen on port %d: %v\n", cfg.ListenPort, err)
 		return
 	}
 	defer lis.Close()
+	log.Printf("[main] listening on port %d\n", cfg.ListenPort)
 
 	go mainLoop(lis)
 

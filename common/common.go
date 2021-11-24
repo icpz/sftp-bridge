@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+const (
+	DefaultConfigFile = "./config.json"
+)
+
 var (
 	TmpDir string
 )
