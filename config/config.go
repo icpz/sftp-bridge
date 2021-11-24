@@ -6,15 +6,17 @@ import (
 	"log"
 )
 
-type Config struct {
+type Instance struct {
 	SshHost    string   `json:"ssh-host,omitempty"`
 	ListenPort int      `json:"listen-port,omitempty"`
 }
 
+type Config struct {
+	Instances  []*Instance `json:"instances"`
+}
+
 func ReadConfig(cfgFile string) (*Config, error) {
-	cfg := &Config{
-		ListenPort: 8123,
-	}
+	cfg := &Config{}
 
 	buf, err := ioutil.ReadFile(cfgFile)
 	if err != nil {
