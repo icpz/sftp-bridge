@@ -27,7 +27,7 @@ func (ins *Instance) handleConn(conn net.Conn) {
 	defer conn.Close()
 
 	cfg := &ins.config
-	stconn, err := sshtun.Dial(cfg.SshHost)
+	stconn, err := sshtun.Dial(cfg.SshHost, net.JoinHostPort(cfg.TargetIP, strconv.Itoa(cfg.TargetPort)))
 	if err != nil {
 		log.Printf("[bridge] failed to connect to %s: %v\n", cfg.SshHost, err)
 		return
@@ -58,7 +58,7 @@ func StartInstance(cfg *config.Instance) (*Instance, error) {
 		log.Printf("[bridge] failed to listen on port %d: %v\n", cfg.ListenPort, err)
 		return nil, err
 	}
-	log.Printf("[bridge] instance listening on port %d\n", cfg.ListenPort)
+	log.Printf("[bridge] instance listening on port %d, host %s, target %s:%d\n", cfg.ListenPort, cfg.SshHost, cfg.TargetIP, cfg.TargetPort)
 
 	ins := &Instance{
 		listener: lis,

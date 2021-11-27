@@ -44,14 +44,14 @@ func waitForUnix(usock string, timeout time.Duration) error {
 	return nil
 }
 
-func Dial(sshHost string) (*STConn, error) {
+func Dial(sshHost, forwardTarget string) (*STConn, error) {
 	conn := &STConn{}
 
-	uaddr := filepath.Join(common.TmpDir, fmt.Sprintf("%s-%x.sock", sshHost, uintptr(unsafe.Pointer(conn)) & 0xffff))
+	uaddr := filepath.Join(common.TmpDir, fmt.Sprintf("%s-%x.sock", sshHost, (uintptr(unsafe.Pointer(conn)) / 8) & 0xffff))
 	log.Printf("[sshtun.Dial] will use internal unix sock %s\n", uaddr)
 
 	os.Remove(uaddr)
-	cmd := exec.Command("ssh", "-N", "-L", fmt.Sprintf("%s:127.0.0.1:22", uaddr), sshHost)
+	cmd := exec.Command("ssh", "-N", "-L", fmt.Sprintf("%s:%s", uaddr, forwardTarget), sshHost)
 	err := cmd.Start()
 	if err != nil {
 		log.Printf("[sshtun.Dial] failed to start cmd: %v\n", err)
