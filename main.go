@@ -13,12 +13,19 @@ import (
 )
 
 var (
-	cfgFile = flag.String("config", common.DefaultConfigFile, "path to config file")
+	cfgFile     = flag.String("config", common.DefaultConfigFile, "path to config file")
+	showVersion = flag.Bool("version", false, "show version")
+
 	cfg *config.Config = nil
 )
 
 func init() {
 	flag.Parse()
+
+	if *showVersion {
+		log.Printf("sftp-bridge %s\n", common.Version)
+		os.Exit(0)
+	}
 
 	var err error
 	cfg, err = config.ReadConfig(*cfgFile)

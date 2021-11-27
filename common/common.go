@@ -11,6 +11,7 @@ import (
 
 var (
 	DefaultConfigFile = "./config.json"
+	Version           = "nightly"
 
 	TmpDir string
 )
