@@ -7,14 +7,14 @@ import (
 )
 
 type Instance struct {
-	SshHost    string   `json:"ssh-host,omitempty"`
-	ListenPort int      `json:"listen-port,omitempty"`
-	TargetIP   string   `json:"target-ip,omitempty"`
-	TargetPort int      `json:"target-port,omitempty"`
+	SshHost    string `json:"ssh-host,omitempty"`
+	ListenPort int    `json:"listen-port,omitempty"`
+	TargetIP   string `json:"target-ip,omitempty"`
+	TargetPort int    `json:"target-port,omitempty"`
 }
 
 type Config struct {
-	Instances  []*Instance `json:"instances"`
+	Instances []*Instance `json:"instances"`
 }
 
 func ReadConfig(cfgFile string) (*Config, error) {
